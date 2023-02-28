@@ -51,19 +51,19 @@ public class Ball : MonoBehaviour
 
     public void AddForce(Vector3 force)
     {
-        rigidBody.velocity = Vector3.zero;
+        //rigidBody.velocity = Vector3.zero;
         //force.x *= 2f;
-        rigidBody.AddForce(force, ForceMode.VelocityChange);        
+        //rigidBody.AddForce(force, ForceMode.VelocityChange);        
     }
 
-    //public void Shoot()
-    //{
-    //    Reset();
-    //    isShooting = true;
-    //    FootballController.Instance.scoreController.time.Pause(true);
-    //    Vector3 upForce = Vector3.up * 5f;
-    //    rigidBody.AddForce(Vector3.forward * 25f + upForce, ForceMode.Impulse);
-    //}
+    public void Shoot()
+    {
+        Reset();
+        isShooting = true;
+        FootballController.Instance.scoreController.time.Pause(true);
+        Vector3 upForce = Vector3.up * 5f;
+        rigidBody.AddForce(Vector3.forward * 25f + upForce, ForceMode.Impulse);
+    }
 
     private void Update()
     {

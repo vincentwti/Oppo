@@ -34,6 +34,9 @@ public class FootballController : MonoBehaviour
     public Ball ball;
     public SwipeController swipeController;
 
+    public Weather weather;
+    public Locator locator;
+
     public SkyController skyController;
     public ScoreController scoreController;
     public TweenFade transitionAnim;
@@ -67,6 +70,16 @@ public class FootballController : MonoBehaviour
 
         EventManager.onStrikerSelected += OnStrikerSelected;
         EventManager.onGoalKeeperSelected += OnGoalKeeperSelected;
+
+        StartCoroutine(GetWeatherData());
+    }
+
+    private IEnumerator GetWeatherData()
+    {
+        float lati = 0f;
+        float longi = 0f;
+        yield return locator.GetLatitudeLongitude((latitude, longitude) => { lati = latitude; longi = longitude; });
+        yield return weather.RequestWeather(lati, longi);
     }
 
     private void OnDestroy()
