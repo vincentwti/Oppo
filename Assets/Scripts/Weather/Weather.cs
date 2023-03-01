@@ -5,17 +5,27 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 [Serializable]
+public class Coord
+{
+    public float lon;
+    public float lat;
+}
+
+[Serializable]
 public class WeatherData
 {
     public int id;
     public string main;
     public string description;
+    public string icon;
 }
 
 [Serializable]
 public class WeatherResult
 {
-    public WeatherData weather;
+    public Coord coord;
+    public WeatherData[] weather;
+    public int visibility;
 }
 
 public class Weather : MonoBehaviour
@@ -44,12 +54,32 @@ public class Weather : MonoBehaviour
     private readonly int[] CLOUDS_KEY = { 801, 802, 803, 804 };
     private const string CLOUDS_VALUE = "Clouds";
 
-    public WeatherResult weather;
+    public WeatherResult weatherResult;
 
-    public IEnumerator RequestWeather(float latitude, float longitude)
+    public enum WeatherType
+    {
+        Thunderstorm = 0,
+        Drizzle = 1,
+        Rain = 2,
+        Snow = 3,
+        Clear = 4,
+        Cloudy = 5,
+        SomethingElse = 6
+    }
+
+    private Dictionary<string, WeatherType> weatherDict = new Dictionary<string, WeatherType>
+    {
+        { THUNDERSTORM_VALUE, WeatherType.Thunderstorm },
+        { DRIZZLE_VALUE, WeatherType.Drizzle },
+        { RAIN_VALUE, WeatherType.Rain },
+        { SNOW_VALUE, WeatherType.Snow },
+        { CLOUDS_VALUE, WeatherType.Cloudy }
+    };
+
+    public IEnumerator RequestWeather(float latitude, float longitude, Action<WeatherType> onCompleted)
     {
         string url = URL.Replace("[LAT]", latitude.ToString()).Replace("[LONG]", longitude.ToString()).Replace("[APP_ID]", SECRET_KEY);
-
+        Debug.Log("url : " + url);
         UnityWebRequest uwr = new UnityWebRequest(url, "GET");
         uwr.downloadHandler = new DownloadHandlerBuffer();
         yield return uwr.SendWebRequest();
@@ -58,9 +88,14 @@ public class Weather : MonoBehaviour
             if (uwr.result == UnityWebRequest.Result.Success)
             {
                 string json = uwr.downloadHandler.text;
-                weather = JsonUtility.FromJson<WeatherResult>(json);
+                weatherResult = JsonUtility.FromJson<WeatherResult>(json);
                 Debug.Log("json : " + json);
-                Debug.Log("id : " + weather.weather.id + "__" + weather.weather.main + " " + weather.weather.description);
+                WeatherType weatherType = WeatherType.Clear;
+                if (weatherDict.ContainsKey(weatherResult.weather[0].main))
+                {
+                    weatherType = weatherDict[weatherResult.weather[0].main];
+                }
+                onCompleted?.Invoke(weatherType);
             }
         }
         catch (Exception exc)

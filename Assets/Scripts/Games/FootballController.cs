@@ -54,6 +54,8 @@ public class FootballController : MonoBehaviour
     private float shootTimer = 4f;
     private float elapsedTime;
 
+    public bool isStarted = false;
+
     public Dictionary<ulong, int> clientsRoleDict = new Dictionary<ulong, int>();
 
     public static FootballController Instance { get; private set; }
@@ -71,15 +73,24 @@ public class FootballController : MonoBehaviour
         EventManager.onStrikerSelected += OnStrikerSelected;
         EventManager.onGoalKeeperSelected += OnGoalKeeperSelected;
 
-        StartCoroutine(GetWeatherData());
+        if (NetworkController.Instance.GetClientId() == 1)
+        {
+            StartCoroutine(GetWeatherData());
+        }
+
+        //playerType = PlayerType.GoalKeeper;
+        OnGoalKeeperSelected();
     }
+
 
     private IEnumerator GetWeatherData()
     {
         float lati = 0f;
         float longi = 0f;
+        Weather.WeatherType weatherType = Weather.WeatherType.Clear;
         yield return locator.GetLatitudeLongitude((latitude, longitude) => { lati = latitude; longi = longitude; });
-        yield return weather.RequestWeather(lati, longi);
+        yield return weather.RequestWeather(lati, longi, (weather) => { weatherType = weather; });
+        skyController.CheckCurrentTimeWeather(weatherType);
     }
 
     private void OnDestroy()
@@ -90,6 +101,11 @@ public class FootballController : MonoBehaviour
 
     public void StartMatch()
     {
+        isStarted = true;
+        if (NetworkController.Instance.GetClientId() == 1)
+        {
+            StartCoroutine(GetWeatherData());
+        }
         if (GameManager.Instance.IsServer)
         {
             Debug.Log("Start Match");
@@ -236,6 +252,10 @@ public class FootballController : MonoBehaviour
     public void ResetMatch()
     {
         Debug.Log("Reset Match");
+        if (NetworkController.Instance.GetClientId() == 1)
+        {
+            StartCoroutine(GetWeatherData());
+        }
         elapsedTime = 0;
         PlayTransitionAnim();
         matchDataList.Clear();

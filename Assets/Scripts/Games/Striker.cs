@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Striker : MonoBehaviour
+public class Striker : Player
 {
     public Transform striker;
     public Ball ball;
     public SwipeController swipeController;
 
-    private Animator animator;
+    public Animator animator;
     private Vector3 shootPosition;
 
     private void Start()
@@ -36,15 +36,27 @@ public class Striker : MonoBehaviour
 
     public void PlayShootAnimation()
     {
+        Debug.Log("animator : " + animator);
         animator.SetTrigger("Shoot");
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
         if (Input.GetKeyDown(KeyCode.Space))
         {
             PlayShootAnimation(shootPosition);
         }
+    }
+
+    protected override void DoAction()
+    {
+        Shoot();
+    }
+
+    protected override bool CheckIdle()
+    {
+        return base.CheckIdle();
     }
 
     public void Shoot()

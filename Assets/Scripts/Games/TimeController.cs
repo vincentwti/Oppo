@@ -77,4 +77,9 @@ public class TimeController : MonoBehaviour
         return time;
     }
 
+    public bool GetIsPaused()
+    {
+        return isPaused;
+    }
+
 }

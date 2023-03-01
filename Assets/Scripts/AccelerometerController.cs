@@ -219,7 +219,7 @@ public class AccelerometerController : MonoBehaviour
                 if (directionList == commandList && directionList.Length > 0)
                 {
                     //onShakedTriggered?.Invoke();
-                    if (GameManager.Instance.controlType == GameManager.ControlType.SHAKE)
+                    if (GameManager.Instance.controlType == GameManager.ControlType.SHAKEDRAW)
                     {
                         EventManager.onPhoneSideShaked?.Invoke(GameManager.Instance.GetClientId());
                         ClearDirections();

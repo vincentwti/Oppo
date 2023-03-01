@@ -60,7 +60,7 @@ public class LineBrush : SimplePooling
         {
             CheckElapsedTime();
         }
-        else if(GameManager.Instance.controlType == GameManager.ControlType.DRAW)
+        else if(GameManager.Instance.controlType == GameManager.ControlType.SHAKEDRAW)
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -136,7 +136,7 @@ public class LineBrush : SimplePooling
                 yield return new WaitForSeconds(0.1f);
                 if (!GameManager.Instance.IsServer)
                 {
-                    if (GameManager.Instance.controlType == GameManager.ControlType.DRAW && positionList.Count > 0)
+                    if (GameManager.Instance.controlType == GameManager.ControlType.SHAKEDRAW && positionList.Count > 0)
                     {
                         EventManager.onDrawingLine?.Invoke(GameManager.Instance.GetClientId(), positionList);
                     }

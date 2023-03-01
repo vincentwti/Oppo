@@ -164,7 +164,7 @@ namespace WTI.PUN
             base.OnConnectedToMaster();
         }
 
-        public override void OnPlayerEnteredRoom(Player newPlayer)
+        public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
         {
             Debug.Log("player joined : " + newPlayer.ActorNumber);
             GameManager.Instance.SetDeviceCount(PhotonNetwork.CountOfPlayers - 1);
@@ -174,7 +174,7 @@ namespace WTI.PUN
             }
         }
 
-        public override void OnPlayerLeftRoom(Player otherPlayer)
+        public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
         {
             GameManager.Instance.SetDeviceCount(PhotonNetwork.CountOfPlayers - 1);
             if (otherPlayer.IsMasterClient)

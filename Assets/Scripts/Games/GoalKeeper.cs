@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GoalKeeper : MonoBehaviour
+public class GoalKeeper : Player
 {
     private Vector3 acceleration;
 
@@ -29,8 +29,9 @@ public class GoalKeeper : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
         if (FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper)
         {
             if (Application.platform == RuntimePlatform.Android)
@@ -55,33 +56,36 @@ public class GoalKeeper : MonoBehaviour
         }
     }
 
-    private void OnGUI()
-    {
-        GUIStyle style = new GUIStyle();
-        style.fontSize = 50;
-        style.normal.textColor = Color.white;
-        GUI.Label(new Rect(50, 1000, 600, 60), "acc : " + acceleration, style);
-    }
+    //private void OnGUI()
+    //{
+    //    GUIStyle style = new GUIStyle();
+    //    style.fontSize = 50;
+    //    style.normal.textColor = Color.white;
+    //    GUI.Label(new Rect(50, 1000, 600, 60), "acc : " + acceleration, style);
+    //}
 
     private void UpdateTargetPointer()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        Vector2 offset = new Vector2((maxX + minX) / 2, (maxY + minY) / 2);
+        if (FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper)
+        {
+            Vector2 offset = new Vector2((maxX + minX) / 2, (maxY + minY) / 2);
 
-        Vector3 targetPos = target.position;
-        
-        targetPos.x = offset.x + -acceleration.x * maxX * 4;
-        targetPos.y = offset.y + acceleration.y * maxY * 4;
-        if (targetPos.x > maxX) targetPos.x = maxX;
-        else if (targetPos.x < minX) targetPos.x = minX;
-        if (targetPos.y > maxY) targetPos.y = maxY;
-        else if (targetPos.y < minY) targetPos.y = minY;
+            Vector3 targetPos = target.position;
 
-        target.position = Vector3.Lerp(target.position, targetPos, Time.deltaTime * handSpeed);
+            targetPos.x = offset.x + -acceleration.x * maxX * 4;
+            targetPos.y = offset.y + acceleration.y * maxY * 4;
+            if (targetPos.x > maxX) targetPos.x = maxX;
+            else if (targetPos.x < minX) targetPos.x = minX;
+            if (targetPos.y > maxY) targetPos.y = maxY;
+            else if (targetPos.y < minY) targetPos.y = minY;
 
-        //float x = Mathf.Lerp(target.position.x, targetPos.x, Time.deltaTime * handSpeed);
-        //float y = Mathf.Lerp(target.position.y, targetPos.y, Time.deltaTime * handSpeed);
-        //target.position = new Vector3(x, y, target.position.z);
+            target.position = Vector3.Lerp(target.position, targetPos, Time.deltaTime * handSpeed);
+
+            //float x = Mathf.Lerp(target.position.x, targetPos.x, Time.deltaTime * handSpeed);
+            //float y = Mathf.Lerp(target.position.y, targetPos.y, Time.deltaTime * handSpeed);
+            //target.position = new Vector3(x, y, target.position.z);
+        }
 #endif
     }
 
@@ -89,14 +93,16 @@ public class GoalKeeper : MonoBehaviour
     {
         Vector3 pos = transform.position;
         pos.x = target.position.x;
-        transform.position = pos;
+        goalKeeper.position = pos;
 
         Vector3 handPos = hands.position;
         handPos.y = target.position.y;
         hands.position = handPos;
 
-        EventManager.onGoalKeeperPositionUpdated?.Invoke(GameManager.Instance.GetClientId(), pos, handPos);
-
+        if (FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper)
+        {
+            EventManager.onGoalKeeperPositionUpdated?.Invoke(GameManager.Instance.GetClientId(), pos, target.position);
+        }
         //float angle = acceleration.x * 60f * 2f;
         //if (angle > maxAngle) angle = maxAngle;
         //if (angle < minAngle) _ = minAngle;
@@ -116,5 +122,24 @@ public class GoalKeeper : MonoBehaviour
     public void Calibrate()
     {
         calibrationOffset = Input.acceleration;
+    }
+
+    protected override void DoAction()
+    {
+        Vector3 targetPos = FootballController.Instance.ball.transform.position;
+        Vector3 pos = transform.position;
+
+        targetPos.y = pos.y;
+        transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * 5f);
+    }
+
+    protected override bool CheckIdle()
+    {
+        Vector3 acc = acceleration;
+        if (Mathf.Abs(acc.x - accelerometerTolerance) > 0 || Mathf.Abs(acc.y - accelerometerTolerance) > 0 || Mathf.Abs(acc.z - accelerometerTolerance) > 0)
+        {
+            return false;
+        }
+        return base.CheckIdle();
     }
 }

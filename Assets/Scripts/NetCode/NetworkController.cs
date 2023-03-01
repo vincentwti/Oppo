@@ -51,15 +51,16 @@ namespace WTI.NetCode
             EventManager.onConnectToNetwork += Connect;
             EventManager.onLeaveRoom += ExitRoom;
 
-            if (GameManager.Instance.IsServer)
-            {
-                //Connect();
-                GameManager.Instance.HideControlTypeDropdown();
-            }
-            else
-            { 
-                GameManager.Instance.ShowControlTypeDropdown();
-            }
+            Connect();
+            //if (GameManager.Instance.IsServer)
+            //{
+            //    //Connect();
+            //    GameManager.Instance.HideControlTypeDropdown();
+            //}
+            //else
+            //{ 
+            //    GameManager.Instance.ShowControlTypeDropdown();
+            //}
         }
 
         private void OnDestroy()
@@ -179,17 +180,17 @@ namespace WTI.NetCode
         public void OnServerStarted()
         {
             GameManager.Instance.HideReconnectButton();
-            GameManager.Instance.ShowExitRoomButton();
+            //GameManager.Instance.ShowExitRoomButton();
             statusText.text = "started";
         }
 
         public void OnConnected(ulong clientId)
         {
-            Debug.LogWarning("OnConnected : " + clientId);
+            Debug.LogWarning("OnConnected : " + clientId + "  " + NetworkManager.Singleton.ConnectedClients.Count);
             if (clientId == NetworkManager.Singleton.LocalClientId)
             {
                 GameManager.Instance.HideReconnectButton();
-                GameManager.Instance.ShowExitRoomButton();
+                //GameManager.Instance.ShowExitRoomButton();
                 statusText.text = "connected";
 
                 OnDevicePaired();
@@ -198,7 +199,10 @@ namespace WTI.NetCode
             else if (GameManager.Instance.IsServer)
             {
                 FootballController.Instance.SendPlayerData();
-                FootballController.Instance.StartMatch();
+                if (NetworkManager.Singleton.ConnectedClients.Count > 2 && !FootballController.Instance.isStarted)
+                {
+                    FootballController.Instance.StartMatch();
+                }
             }
         }
 
@@ -209,7 +213,7 @@ namespace WTI.NetCode
             {
                 statusText.text = "disconnected";
 
-                GameManager.Instance.ShowReconnectButton();
+                //GameManager.Instance.ShowReconnectButton();
                 GameManager.Instance.HideCreateRoomButton();
                 GameManager.Instance.HideJoinRoomButton();
                 GameManager.Instance.HideExitRoomButton();
@@ -221,6 +225,16 @@ namespace WTI.NetCode
             {
                 FootballController.Instance.OnDisconnected(clientId);
                 EventManager.onOtherPlayerDisconnected?.Invoke(GameManager.Instance.GetClientId(), clientId);
+            }
+
+            Connect();
+        }
+
+        public void OnApplicationFocus(bool focus)
+        {
+            if (NetworkManager.Singleton.IsConnectedClient)
+            {
+                Connect();
             }
         }
 
@@ -245,15 +259,15 @@ namespace WTI.NetCode
             GameManager.Instance.HideRoomName();
         }
 
-        private void OnGUI()
-        {
-            GUIStyle style = new GUIStyle();
-            style.fontSize = 50;
-            style.normal.textColor = Color.red;
+        //private void OnGUI()
+        //{
+        //    GUIStyle style = new GUIStyle();
+        //    style.fontSize = 50;
+        //    style.normal.textColor = Color.red;
 
-            GUI.Label(new Rect(40, 100, 300, 60), "IP : " + ((UnityTransport)transport).ConnectionData.Address.ToString()+ ":" + ((UnityTransport)transport).ConnectionData.Port + " " + ((UnityTransport)transport).ConnectionData.ServerListenAddress.ToString(), style);
-            GUI.Label(new Rect(40, 160, 300, 60), "msg : " + errorMessage, style);
+        //    GUI.Label(new Rect(40, 100, 300, 60), "IP : " + ((UnityTransport)transport).ConnectionData.Address.ToString()+ ":" + ((UnityTransport)transport).ConnectionData.Port + " " + ((UnityTransport)transport).ConnectionData.ServerListenAddress.ToString(), style);
+        //    GUI.Label(new Rect(40, 160, 300, 60), "msg : " + errorMessage, style);
 
-        }
+        //}
     }
 }

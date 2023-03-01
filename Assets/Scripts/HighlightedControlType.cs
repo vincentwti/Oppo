@@ -68,7 +68,7 @@ public class HighlightedControlType : MonoBehaviour
                 index = (int)GameManager.ControlType.KITE;
                 break;
             case "Shake":
-                index = (int)GameManager.ControlType.SHAKE;
+                index = (int)GameManager.ControlType.SHAKEDRAW;
                 break;
             case "Selfie":
                 index = (int)GameManager.ControlType.PICTURE;

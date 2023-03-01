@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     public enum ControlType
     {
         KITE = 0,
-        SHAKE = 1,
+        SHAKEDRAW = 1,
         DRAW = 2,
         PICTURE = 3
     }
@@ -46,7 +46,11 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         Instance = this;
-
+        
+        
+        //controlType = ControlType.SHAKEDRAW;
+        
+        
         Settings.networkType = Settings.NetworkType.NetCode;
 
         if (Application.platform == RuntimePlatform.WindowsEditor)

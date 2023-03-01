@@ -74,15 +74,15 @@ public class Ball : MonoBehaviour
             transform.position = DefPos;
         }
 
-        //if (!GameManager.Instance.IsServer && FootballController.Instance.playerType == FootballController.PlayerType.Striker)
-        //{
-        //    rigidBody.isKinematic = false;
-        //    EventManager.onFootballUpdated?.Invoke(GameManager.Instance.GetClientId(), transform.position);
-        //}
-        //else
-        //{
-        //    rigidBody.isKinematic = true;
-        //}
+        if (!GameManager.Instance.IsServer && FootballController.Instance.playerType == FootballController.PlayerType.Striker)
+        {
+            rigidBody.isKinematic = false;
+            EventManager.onFootballUpdated?.Invoke(GameManager.Instance.GetClientId(), transform.position);
+        }
+        else
+        {
+            rigidBody.isKinematic = true;
+        }
     }
 
     public void UpdatePosition(Vector3 position)

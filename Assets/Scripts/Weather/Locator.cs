@@ -11,28 +11,26 @@ public class Locator : MonoBehaviour
     private float latitude;
     private float longitude;
 
-    private void Start()
-    {
-        StartCoroutine(GetLatitudeLongitude(null));
-    }
-
     public IEnumerator GetLatitudeLongitude(Action<float, float> onCompleted = null)
     {
         elapsedTime = 0f;
-        if (!Input.location.isEnabledByUser)
+        if (Application.platform != RuntimePlatform.WindowsEditor)
         {
-            yield break;
+            if (!Input.location.isEnabledByUser)
+            {
+                yield break;
+            }
         }
 
         Input.location.Start();
 
-        while (Input.location.status == LocationServiceStatus.Initializing && timeOut > 0)
+        while (Input.location.status == LocationServiceStatus.Initializing && elapsedTime > 0)
         {
             yield return null;
             elapsedTime += Time.deltaTime;
         }
-
-        if (elapsedTime <= 0)
+        Debug.Log("status : " + Input.location.status.ToString() + " " + elapsedTime);
+        if (elapsedTime >= timeOut)
         {
             yield break;
         }
@@ -45,6 +43,7 @@ public class Locator : MonoBehaviour
         {
             latitude = Input.location.lastData.latitude;
             longitude = Input.location.lastData.longitude;
+            Debug.Log("lat : " + latitude + " , " + longitude);
         }
         onCompleted?.Invoke(latitude, longitude);
     }

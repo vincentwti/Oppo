@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,6 +28,7 @@ public class SkyController : MonoBehaviour
 
     public enum TimeType
     {
+        morning,
         day,
         night
     }
@@ -34,9 +36,10 @@ public class SkyController : MonoBehaviour
 
     public enum WeatherType
     {
-        sunny,
-        rainy,
-        snowy
+        sunny = 0,
+        cloudy = 1,
+        rainy = 2,
+        snowy = 3
     }
     public WeatherType weatherType;
 
@@ -59,11 +62,40 @@ public class SkyController : MonoBehaviour
         snowyButton.onClick.AddListener(() => SwitchSnowyWeather());
     }
 
+    public void CheckCurrentTimeWeather(Weather.WeatherType weather)
+    {
+        switch (weather)
+        {
+            case Weather.WeatherType.Clear:
+                OnWeatherChanged(WeatherType.sunny);
+                break;
+            case Weather.WeatherType.Drizzle:
+                OnWeatherChanged(WeatherType.rainy);
+                break;
+            case Weather.WeatherType.Rain:
+                OnWeatherChanged(WeatherType.rainy);
+                break;
+            case Weather.WeatherType.Cloudy:
+                OnWeatherChanged(WeatherType.cloudy);
+                break;
+            case Weather.WeatherType.Snow:
+                OnWeatherChanged(WeatherType.snowy);
+                break;
+            default:
+                OnWeatherChanged(WeatherType.sunny);
+                break;
+        }
+        CheckCurrentHour();
+    }
+
     public void OnPartOfDayChanged(int part)
     {
         timeType = (TimeType)part;
         switch ((TimeType)part)
         {
+            case TimeType.morning:
+                SwitchDaySkybox(false);
+                break;
             case TimeType.day:
                 SwitchDaySkybox(false);
                 break;
@@ -90,6 +122,52 @@ public class SkyController : MonoBehaviour
         }
     }
 
+    public void OnWeatherChanged(WeatherType weather)
+    {
+        switch (weather)
+        {
+            case WeatherType.sunny:
+                SwitchSunnyWeather(false);
+                break;
+            case WeatherType.cloudy:
+                SwitchCloudyWeather(false);
+                break;
+            case WeatherType.rainy:
+                SwitchRainyWeather(false);
+                break;
+            case WeatherType.snowy:
+                SwitchSnowyWeather(false);
+                break;
+        }
+    }
+
+    public void SwitchMorningSkybox(bool isSync = true)
+    {
+        timeType = TimeType.day;
+
+        if (weatherType == WeatherType.sunny)
+        {
+            SwitchSunnyWeather(isSync);
+        }
+        else if (weatherType == WeatherType.cloudy)
+        {
+            SwitchCloudyWeather(isSync);
+        }
+        else if (weatherType == WeatherType.rainy)
+        {
+            SwitchRainyWeather(isSync);
+        }
+        else if (weatherType == WeatherType.snowy)
+        {
+            SwitchSnowyWeather(isSync);
+        }
+
+        if (isSync)
+        {
+            EventManager.onPartOfDayChanged?.Invoke(GameManager.Instance.GetClientId(), (int)timeType);
+        }
+    }
+
     public void SwitchDaySkybox(bool isSync = true)
     {
         timeType = TimeType.day;
@@ -98,9 +176,13 @@ public class SkyController : MonoBehaviour
         {
             SwitchSunnyWeather(isSync);
         }
-        else if (weatherType == WeatherType.rainy)
+        else if (weatherType == WeatherType.cloudy)
         {
             SwitchCloudyWeather(isSync);
+        }
+        else if (weatherType == WeatherType.rainy)
+        {
+            SwitchRainyWeather(isSync);
         }
         else if (weatherType == WeatherType.snowy)
         {
@@ -121,9 +203,13 @@ public class SkyController : MonoBehaviour
         {
             SwitchSunnyWeather(isSync);
         }
-        else if (weatherType == WeatherType.rainy)
+        else if (weatherType == WeatherType.cloudy)
         {
             SwitchCloudyWeather(isSync);
+        }
+        else if (weatherType == WeatherType.rainy)
+        {
+            SwitchRainyWeather(isSync);
         }
         else if (weatherType == WeatherType.snowy)
         {
@@ -158,6 +244,27 @@ public class SkyController : MonoBehaviour
     }
 
     public void SwitchCloudyWeather(bool isSync = true)
+    {
+        weatherType = WeatherType.cloudy;
+        rainVfxObject.SetActive(false);
+        snowVfxObject.SetActive(false);
+
+        if (timeType == TimeType.day)
+        {
+            RenderSettings.skybox = cloudyDaySkyboxMaterial;
+        }
+        else
+        {
+            RenderSettings.skybox = cloudyNightSkyboxMaterial;
+        }
+
+        if (isSync)
+        {
+            EventManager.onWeatherChanged?.Invoke(GameManager.Instance.GetClientId(), (int)weatherType);
+        }
+    }
+
+    public void SwitchRainyWeather(bool isSync = true)
     {
         weatherType = WeatherType.rainy;
         rainVfxObject.SetActive(true);
@@ -210,4 +317,23 @@ public class SkyController : MonoBehaviour
 
         //skyBoxMaterial.SetFloat("_Rotation", value * 300);
     }
+
+    private void CheckCurrentHour()
+    {
+        int hour = DateTime.Now.Hour;
+        if (hour >= 5 && hour < 11)
+        {
+            timeType = TimeType.morning;
+        }
+        else if (hour >= 11 && hour < 19)
+        {
+            timeType = TimeType.day;
+        }
+        else
+        {
+            timeType = TimeType.night;
+        }
+        OnPartOfDayChanged((int)timeType);
+    }
+
 }
