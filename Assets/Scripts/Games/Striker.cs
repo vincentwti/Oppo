@@ -51,13 +51,20 @@ public class Striker : Player
 
     protected override void DoAction()
     {
-        Shoot();
+        if (FootballController.Instance.striker)
+        {
+            Debug.Log("striker do action");
+            Vector2 offset = Random.insideUnitCircle * 6f;
+            shootPosition = FootballController.Instance.goal.position + (Vector3)offset;
+            PlayShootAnimation(shootPosition);
+        }
     }
 
     protected override bool CheckIdle()
     {
         return base.CheckIdle();
     }
+
 
     public void Shoot()
     {

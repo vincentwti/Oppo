@@ -102,6 +102,7 @@ public class GoalKeeper : Player
         if (FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper)
         {
             EventManager.onGoalKeeperPositionUpdated?.Invoke(GameManager.Instance.GetClientId(), pos, target.position);
+            Debug.LogWarning("Send GK pos");
         }
         //float angle = acceleration.x * 60f * 2f;
         //if (angle > maxAngle) angle = maxAngle;
@@ -126,11 +127,14 @@ public class GoalKeeper : Player
 
     protected override void DoAction()
     {
-        Vector3 targetPos = FootballController.Instance.ball.transform.position;
-        Vector3 pos = transform.position;
+        if (FootballController.Instance.goalKeeper)
+        {
+            Vector3 targetPos = FootballController.Instance.ball.transform.position;
+            Vector3 pos = transform.position;
 
-        targetPos.y = pos.y;
-        transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * 5f);
+            targetPos.y = pos.y;
+            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * 5f);
+        }
     }
 
     protected override bool CheckIdle()
@@ -138,6 +142,7 @@ public class GoalKeeper : Player
         Vector3 acc = acceleration;
         if (Mathf.Abs(acc.x - accelerometerTolerance) > 0 || Mathf.Abs(acc.y - accelerometerTolerance) > 0 || Mathf.Abs(acc.z - accelerometerTolerance) > 0)
         {
+            ResetCheckIdle();
             return false;
         }
         return base.CheckIdle();

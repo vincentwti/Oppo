@@ -32,6 +32,7 @@ public class FootballController : MonoBehaviour
     public GoalKeeper goalKeeper;
     public Striker striker;
     public Ball ball;
+    public Transform goal;
     public SwipeController swipeController;
 
     public Weather weather;
@@ -72,16 +73,28 @@ public class FootballController : MonoBehaviour
 
         EventManager.onStrikerSelected += OnStrikerSelected;
         EventManager.onGoalKeeperSelected += OnGoalKeeperSelected;
-
-        if (NetworkController.Instance.GetClientId() == 1)
-        {
-            StartCoroutine(GetWeatherData());
-        }
+        EventManager.onNetworkConnected += ApplyRole;
+        //if (NetworkController.Instance.GetClientId() == 1)
+        //{
+        //    StartCoroutine(GetWeatherData());
+        //}
 
         //playerType = PlayerType.GoalKeeper;
-        OnGoalKeeperSelected();
+        //OnGoalKeeperSelected();
     }
 
+    public void ApplyRole()
+    {
+        if (Application.platform == RuntimePlatform.WindowsPlayer)
+        {
+            return;
+        }
+#if !UNITY_EDITOR
+        Debug.Log("AplyRole");
+        OnGoalKeeperSelected();
+        //OnStrikerSelected();
+#endif
+    }
 
     private IEnumerator GetWeatherData()
     {

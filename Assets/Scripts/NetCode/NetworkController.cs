@@ -52,6 +52,8 @@ namespace WTI.NetCode
             EventManager.onLeaveRoom += ExitRoom;
 
             Connect();
+
+
             //if (GameManager.Instance.IsServer)
             //{
             //    //Connect();
@@ -124,6 +126,7 @@ namespace WTI.NetCode
                         GameManager.Instance.CheckControlType();
                         EventManager.onNetworkConnected?.Invoke();
                         statusText.text = "connect button";
+                        Debug.Log("client started");
                     }
                     else
                     {
@@ -180,8 +183,10 @@ namespace WTI.NetCode
         public void OnServerStarted()
         {
             GameManager.Instance.HideReconnectButton();
+            Debug.Log("server started");
             //GameManager.Instance.ShowExitRoomButton();
             statusText.text = "started";
+            //FootballController.Instance.ApplyRole();
         }
 
         public void OnConnected(ulong clientId)
@@ -204,6 +209,7 @@ namespace WTI.NetCode
                     FootballController.Instance.StartMatch();
                 }
             }
+            //FootballController.Instance.ApplyRole();
         }
 
         public void OnDisconnected(ulong clientId)
@@ -259,15 +265,15 @@ namespace WTI.NetCode
             GameManager.Instance.HideRoomName();
         }
 
-        //private void OnGUI()
-        //{
-        //    GUIStyle style = new GUIStyle();
-        //    style.fontSize = 50;
-        //    style.normal.textColor = Color.red;
+        private void OnGUI()
+        {
+            GUIStyle style = new GUIStyle();
+            style.fontSize = 50;
+            style.normal.textColor = Color.red;
 
-        //    GUI.Label(new Rect(40, 100, 300, 60), "IP : " + ((UnityTransport)transport).ConnectionData.Address.ToString()+ ":" + ((UnityTransport)transport).ConnectionData.Port + " " + ((UnityTransport)transport).ConnectionData.ServerListenAddress.ToString(), style);
-        //    GUI.Label(new Rect(40, 160, 300, 60), "msg : " + errorMessage, style);
+            GUI.Label(new Rect(40, 100, 300, 60), "IP : " + ((UnityTransport)transport).ConnectionData.Address.ToString() + ":" + ((UnityTransport)transport).ConnectionData.Port + " " + ((UnityTransport)transport).ConnectionData.ServerListenAddress.ToString(), style);
+            GUI.Label(new Rect(40, 160, 300, 60), "msg : " + errorMessage, style);
 
-        //}
+        }
     }
 }

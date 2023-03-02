@@ -39,7 +39,7 @@ public class Ball : MonoBehaviour
             Vector3 upForce = Vector3.zero;
             if (shootPosition.y > transform.position.y)
             {
-                upForce = Vector3.up * 7f;
+                upForce = Vector3.up * 5f;
             }
             rigidBody.AddForce(direction.normalized * 25f + upForce, ForceMode.Impulse);
         }
