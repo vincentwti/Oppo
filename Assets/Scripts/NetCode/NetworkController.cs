@@ -238,7 +238,7 @@ namespace WTI.NetCode
 
         public void OnApplicationFocus(bool focus)
         {
-            if (NetworkManager.Singleton.IsConnectedClient)
+            if (!NetworkManager.Singleton.IsConnectedClient)
             {
                 Connect();
             }

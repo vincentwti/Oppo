@@ -15,6 +15,12 @@ public class GoalKeeper : Player
     public float smoothness = 5f;
     public float handSpeed = 2f;
 
+    private float aiSpeed = 10f;
+    private float minAiSpeed = 10f;
+    private float maxAiSpeed = 25f;
+    private float changeSpeedInterval = 3f;
+    private float elapsedChangeAiSpeed = 0f;
+
     private Vector3 calibrationOffset;
 
     private void Start()
@@ -32,24 +38,36 @@ public class GoalKeeper : Player
     protected override void Update()
     {
         base.Update();
-        if (FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper)
+        if (playerType == PlayerType.Human)
         {
-            if (Application.platform == RuntimePlatform.Android)
+            if (FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper)
             {
-                acceleration.x = Input.acceleration.x - calibrationOffset.x;
-                acceleration.y = Input.acceleration.y - calibrationOffset.y;
+                if (Application.platform == RuntimePlatform.Android)
+                {
+                    acceleration.x = Input.acceleration.x - calibrationOffset.x;
+                    acceleration.y = Input.acceleration.y - calibrationOffset.y;
+                }
+                else if (Application.platform == RuntimePlatform.IPhonePlayer)
+                {
+                    acceleration.x = -Input.acceleration.y - calibrationOffset.x;
+                    acceleration.y = Input.acceleration.z - calibrationOffset.z;
+                }
             }
-            else if (Application.platform == RuntimePlatform.IPhonePlayer)
+        }
+        else
+        {
+            elapsedChangeAiSpeed += Time.deltaTime;
+            if (elapsedChangeAiSpeed >= changeSpeedInterval + Random.Range(-1f, 1f))
             {
-                acceleration.x = -Input.acceleration.y - calibrationOffset.x;
-                acceleration.y = Input.acceleration.z - calibrationOffset.z;
+                aiSpeed = Random.Range(minAiSpeed, maxAiSpeed);
+                elapsedChangeAiSpeed = 0f;
             }
         }
     }
 
     private void LateUpdate()
     {
-        if (!GameManager.Instance.IsServer && FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper)
+        if (!GameManager.Instance.IsServer && FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper && playerType == PlayerType.Human)
         {
             UpdateTargetPointer();
             UpdateGoalKeeper();
@@ -91,7 +109,7 @@ public class GoalKeeper : Player
 
     private void UpdateGoalKeeper()
     {
-        Vector3 pos = transform.position;
+        Vector3 pos = goalKeeper.position;
         pos.x = target.position.x;
         goalKeeper.position = pos;
 
@@ -101,8 +119,7 @@ public class GoalKeeper : Player
 
         if (FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper)
         {
-            EventManager.onGoalKeeperPositionUpdated?.Invoke(GameManager.Instance.GetClientId(), pos, target.position);
-            Debug.LogWarning("Send GK pos");
+            EventManager.onGoalKeeperPositionUpdated?.Invoke(GameManager.Instance.GetClientId(), pos, hands.position);
         }
         //float angle = acceleration.x * 60f * 2f;
         //if (angle > maxAngle) angle = maxAngle;
@@ -127,24 +144,32 @@ public class GoalKeeper : Player
 
     protected override void DoAction()
     {
-        if (FootballController.Instance.goalKeeper)
+        if (FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper)
         {
             Vector3 targetPos = FootballController.Instance.ball.transform.position;
-            Vector3 pos = transform.position;
+            Vector3 pos = goalKeeper.position;
 
             targetPos.y = pos.y;
-            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * 5f);
+            targetPos.z = pos.z;
+            goalKeeper.position = Vector3.Lerp(goalKeeper.position, targetPos, Time.deltaTime * aiSpeed);
+
+            Vector3 handPos = hands.position;
+            handPos.y = target.position.y;
+            hands.position = Vector3.Lerp(hands.position, handPos, Time.deltaTime * aiSpeed);
+
+            EventManager.onGoalKeeperPositionUpdated?.Invoke(GameManager.Instance.GetClientId(), goalKeeper.position, hands.position);
+
         }
     }
 
-    protected override bool CheckIdle()
-    {
-        Vector3 acc = acceleration;
-        if (Mathf.Abs(acc.x - accelerometerTolerance) > 0 || Mathf.Abs(acc.y - accelerometerTolerance) > 0 || Mathf.Abs(acc.z - accelerometerTolerance) > 0)
-        {
-            ResetCheckIdle();
-            return false;
-        }
-        return base.CheckIdle();
-    }
+    //protected override bool CheckIdle()
+    //{
+    //    Vector3 acc = acceleration;
+    //    if (Mathf.Abs(acc.x - accelerometerTolerance) > 0 || Mathf.Abs(acc.y - accelerometerTolerance) > 0 || Mathf.Abs(acc.z - accelerometerTolerance) > 0)
+    //    {
+    //        ResetCheckIdle();
+    //        return false;
+    //    }
+    //    return base.CheckIdle();
+    //}
 }

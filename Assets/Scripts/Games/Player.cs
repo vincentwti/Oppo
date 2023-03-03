@@ -72,6 +72,7 @@ public class Player : MonoBehaviour
     {
         elapsedCheckIdleTime = 0;
         playerType = PlayerType.Human;
+        flagImage.color = Color.blue;
     }
 
     protected virtual bool CheckIdle()

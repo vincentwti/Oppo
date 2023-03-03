@@ -27,7 +27,10 @@ public class PlayerHUD
     {
         Debug.Log("match : " + round + " " + maxRound);
         scoreText.text = score.ToString();
-        scoreImageValueList[round].sprite = success ? controller.scoreSprite : controller.missSprite;
+        if (round < maxRound)
+        {
+            scoreImageValueList[round].sprite = success ? controller.scoreSprite : controller.missSprite;
+        }
         if (round >= maxRound - 1)
         {
             onMatchEnd?.Invoke();
@@ -100,11 +103,13 @@ public class ScoreController : MonoBehaviour
                 case Player.player1:
                     player1Score += 1;
                     player1Hud.SetScore(this, true, player1Score, round, () => StartCoroutine(FootballController.Instance.WaitForResetMatch()));
+                    FootballController.Instance.goal.gameObject.SetActive(false);
                     player2Hud.SetScore(this, false, player2Score, round, () => StartCoroutine(FootballController.Instance.WaitForResetMatch()));
                     break;
                 case Player.player2:
                     player2Score += 1;
                     player1Hud.SetScore(this, false, player1Score, round, () => StartCoroutine(FootballController.Instance.WaitForResetMatch()));
+                    FootballController.Instance.goal.gameObject.SetActive(false);
                     player2Hud.SetScore(this, true, player2Score, round, () => StartCoroutine(FootballController.Instance.WaitForResetMatch()));
                     break;
             }

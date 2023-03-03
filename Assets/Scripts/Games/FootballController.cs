@@ -260,6 +260,7 @@ public class FootballController : MonoBehaviour
             EventManager.onShootTimerStarted?.Invoke(GameManager.Instance.GetClientId());
             EventManager.onNextRoundStarted?.Invoke(GameManager.Instance.GetClientId());
         }
+        goal.gameObject.SetActive(true);
     }
 
     public void ResetMatch()
@@ -280,6 +281,7 @@ public class FootballController : MonoBehaviour
             swipeController.CanSwipe(true);
             swipeController.ClearLine();
         }
+        gameObject.SetActive(true);
     }
 
     public IEnumerator WaitForResetMatch()

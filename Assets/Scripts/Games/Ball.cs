@@ -8,7 +8,7 @@ public class Ball : MonoBehaviour
     private Rigidbody rigidBody;
     public Vector3 DefPos { get; private set; }
 
-    private float smoothness = 100f;
+    private float smoothness = 50f;
     public bool isShooting;
 
     public float test = 0;
@@ -39,9 +39,10 @@ public class Ball : MonoBehaviour
             Vector3 upForce = Vector3.zero;
             if (shootPosition.y > transform.position.y)
             {
-                upForce = Vector3.up * 5f;
+                upForce = Vector3.up * 2f;
             }
             rigidBody.AddForce(direction.normalized * 25f + upForce, ForceMode.Impulse);
+            rigidBody.AddTorque(direction.normalized * 5f);
         }
         //rigidBody.AddTorque(Vector3.down * 10000, ForceMode.Impulse);
         //float upForce = Random.Range(1, 7);
@@ -61,8 +62,9 @@ public class Ball : MonoBehaviour
         Reset();
         isShooting = true;
         FootballController.Instance.scoreController.time.Pause(true);
-        Vector3 upForce = Vector3.up * 5f;
+        Vector3 upForce = Vector3.up * 2f;
         rigidBody.AddForce(Vector3.forward * 25f + upForce, ForceMode.Impulse);
+        rigidBody.AddTorque(Vector3.forward * 5f);
     }
 
     private void Update()

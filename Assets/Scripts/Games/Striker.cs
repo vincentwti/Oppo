@@ -51,7 +51,7 @@ public class Striker : Player
 
     protected override void DoAction()
     {
-        if (FootballController.Instance.striker)
+        if (FootballController.Instance.playerType == FootballController.PlayerType.Striker)
         {
             Debug.Log("striker do action");
             Vector2 offset = Random.insideUnitCircle * 6f;
