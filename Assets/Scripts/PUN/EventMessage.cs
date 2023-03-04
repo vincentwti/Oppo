@@ -15,7 +15,7 @@ namespace WTI.PUN
         private void OnEnable()
         {
             PhotonNetwork.AddCallbackTarget(this);
-            EventManager.onDrawingLine += (senderClientId, positionList) => SendLineEvent(positionList);
+            EventManager.onDrawingLine += (senderClientId, index, positionList) => SendLineEvent(index, positionList);
             EventManager.onPhoneSideShaked += (senderClientId) => SendShakeEvent();
             EventManager.onPhoneTilted += (senderClinetId, angle) => SendPhoneAngleEvent(angle);
         }
@@ -34,7 +34,7 @@ namespace WTI.PUN
             }
         }
 
-        public void SendLineEvent(List<Vector3> vectorPoints)
+        public void SendLineEvent(int index, List<Vector3> vectorPoints)
         {
             object[] points = new object[vectorPoints.Count];
             for (int i = 0; i < vectorPoints.Count; i++)
@@ -70,7 +70,7 @@ namespace WTI.PUN
                     {
                         points.Add((Vector3)positionObjects[i]);
                     }
-                    GameManager.Instance.SetDrawingLine(points);
+                    //GameManager.Instance.SetDrawingLine(points);
                     break;
                 case phoneAngleEventCode:
                     GameManager.Instance.SetKiteAngle((float)photonEvent.CustomData);

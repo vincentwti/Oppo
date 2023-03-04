@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LineBrush : SimplePooling
 {
-    private LineRenderer lineRenderer;
+    //private LineRenderer lineRenderer;
 
     private float lineThreshold = 2f;
     private float elapsedTimeTouchRelease = 0f;
@@ -23,23 +23,27 @@ public class LineBrush : SimplePooling
     {
         base.Start();
         Input.multiTouchEnabled = false;
-        lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.startWidth = width;
-        lineRenderer.endWidth = width;
+        //lineRenderer = GetComponent<LineRenderer>();
+        //lineRenderer.startWidth = width;
+        //lineRenderer.endWidth = width;
         StartCoroutine(SyncLinePosition(frame));
         elapsedFrameTime = 0f;
 
         EventManager.onClearLine += ClearLine;
+        //GameManager.Instance.controlType = GameManager.ControlType.SHAKEDRAW;
     }
 
-    private void SpawnLine(Vector3 position)
+    private LineRenderer SpawnLine(Vector3 position)
     {
+        Debug.Log("spawn line");
         GameObject lineObj = GetItem("line");
         LineRenderer lineRenderer = lineObj.GetComponent<LineRenderer>();
         lineRenderer.transform.parent = lineParent;
         lineRenderer.transform.position = position;
-        
+        lineRenderer.startWidth = width;
+        lineRenderer.endWidth = width;
         lineList.Add(lineRenderer);
+        return lineRenderer;
     }
 
     private void OnDestroy()
@@ -64,13 +68,13 @@ public class LineBrush : SimplePooling
         {
             if (Input.GetMouseButtonDown(0))
             {
+                Debug.Log("touch down");
                 isTouchReleased = false;
                 elapsedTimeTouchRelease = 0;
                 //ClearLine();
                 Vector3 mousePos = Input.mousePosition;
                 Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
-                worldPos.x = float.Parse(worldPos.x.ToString("0.000"));
-                worldPos.y = float.Parse(worldPos.y.ToString("0.000"));
+                LineRenderer lineRenderer = SpawnLine(worldPos);
                 worldPos.z = 0;
                 lineRenderer.positionCount = 2;
                 lineRenderer.SetPosition(0, worldPos);
@@ -80,19 +84,20 @@ public class LineBrush : SimplePooling
                 positionList.Add(worldPos);
             }
 
-            if (elapsedFrameTime >= frame / 60f)
+            if (elapsedFrameTime >= frame / 120f)
             {
                 if (Input.GetMouseButton(0))
                 {
-                    if (positionList.Count < 100)
+                    if (positionList.Count < 5000)
                     {
                         Vector3 mousePos = Input.mousePosition;
                         Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
                         worldPos.x = float.Parse(worldPos.x.ToString("0.000"));
                         worldPos.y = float.Parse(worldPos.y.ToString("0.000"));
                         worldPos.z = 0;
-                        lineRenderer.positionCount += 1;
-                        lineRenderer.SetPosition(lineRenderer.positionCount - 1, worldPos);
+                        Debug.Log("linelist count : " + lineList.Count, this);
+                        lineList[lineList.Count - 1].positionCount += 1;
+                        lineList[lineList.Count - 1].SetPosition(lineList[lineList.Count - 1].positionCount - 1, worldPos);
 
                         positionList.Add(worldPos);
                     }
@@ -107,6 +112,7 @@ public class LineBrush : SimplePooling
             if (Input.GetMouseButtonUp(0))
             {
                 isTouchReleased = true;
+                positionList.Clear();
             }
 
             //if (isTouchReleased)
@@ -133,12 +139,12 @@ public class LineBrush : SimplePooling
         {
             if (!isTouchReleased)
             {
-                yield return new WaitForSeconds(0.1f);
+                yield return null;
                 if (!GameManager.Instance.IsServer)
                 {
                     if (GameManager.Instance.controlType == GameManager.ControlType.SHAKEDRAW && positionList.Count > 0)
                     {
-                        EventManager.onDrawingLine?.Invoke(GameManager.Instance.GetClientId(), positionList);
+                        EventManager.onDrawingLine?.Invoke(GameManager.Instance.GetClientId(), lineList.Count - 1, positionList);
                     }
                 }
             }
@@ -161,13 +167,17 @@ public class LineBrush : SimplePooling
         //positionList.Clear();
     }
 
-    public void SetLine(List<Vector3> points)
+    public void SetLine(int index, List<Vector3> points)
     {
+        if (index >= lineList.Count)
+        {
+            SpawnLine(points[0]);
+        }
         elapsedTimeTouchRelease = 0f;
         for (int i = 0; i < points.Count; i++)
         {
-            lineRenderer.positionCount = points.Count;
-            lineRenderer.SetPosition(i, points[i]);
+            lineList[index].positionCount = points.Count;
+            lineList[index].SetPosition(i, points[i]);
         }
     }
 }

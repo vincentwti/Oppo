@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class GoalKeeper : Player
 {
@@ -14,12 +15,14 @@ public class GoalKeeper : Player
     public float maxAngle = 60f;
     public float smoothness = 5f;
     public float handSpeed = 2f;
+    public Rig rig;
 
     private Vector3 calibrationOffset;
 
     private void Start()
     {
         Debug.LogWarning("Start");
+        animator = GetComponent<Animator>();
         EventManager.onCalibrate += Calibrate;
     }
 
@@ -127,7 +130,11 @@ public class GoalKeeper : Player
 
     protected override void DoAction()
     {
+<<<<<<< Updated upstream
         if (FootballController.Instance.goalKeeper)
+=======
+        if (FootballController.Instance.playerType == FootballController.PlayerType.GoalKeeper && !pauseAi)
+>>>>>>> Stashed changes
         {
             Vector3 targetPos = FootballController.Instance.ball.transform.position;
             Vector3 pos = transform.position;
@@ -137,6 +144,7 @@ public class GoalKeeper : Player
         }
     }
 
+<<<<<<< Updated upstream
     protected override bool CheckIdle()
     {
         Vector3 acc = acceleration;
@@ -147,4 +155,34 @@ public class GoalKeeper : Player
         }
         return base.CheckIdle();
     }
+=======
+    public override void PlayIdleAnimation()
+    {
+        rig.weight = 1f;
+        base.PlayIdleAnimation();
+    }
+
+    public override void PlayLoseAnimation()
+    {
+        rig.weight = 0f;
+        base.PlayLoseAnimation();
+    }
+
+    public override void PlayWinAnimation()
+    {
+        rig.weight = 0f;
+        base.PlayWinAnimation();
+    }
+
+    //protected override bool CheckIdle()
+    //{
+    //    Vector3 acc = acceleration;
+    //    if (Mathf.Abs(acc.x - accelerometerTolerance) > 0 || Mathf.Abs(acc.y - accelerometerTolerance) > 0 || Mathf.Abs(acc.z - accelerometerTolerance) > 0)
+    //    {
+    //        ResetCheckIdle();
+    //        return false;
+    //    }
+    //    return base.CheckIdle();
+    //}
+>>>>>>> Stashed changes
 }

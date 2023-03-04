@@ -24,7 +24,6 @@ public class GameManager : MonoBehaviour
     public UnityEvent onClient;
 
     public int curDebugClickCount;
-    private int debugClick = 5;
 
     public float elapsedTime = 0;
     public float resetTime = 0.5f;
@@ -287,9 +286,9 @@ public class GameManager : MonoBehaviour
         hud.roomNameText.text = roomName;
     }
 
-    public void SetDrawingLine(List<Vector3> points)
+    public void SetDrawingLine(int index, List<Vector3> points)
     {
-        lineBrush.SetLine(points);
+        lineBrush.SetLine(index, points);
     }
 
     public void SetKiteAngle(float angle)

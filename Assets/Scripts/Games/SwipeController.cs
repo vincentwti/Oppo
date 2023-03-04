@@ -38,7 +38,7 @@ public class SwipeController : MonoBehaviour//, IPointerDownHandler, IPointerUpH
 
     private void Update()
     {
-        Debug.Log("canSwipe : " + canSwipe);
+        Debug.Log("canswipe : " + canSwipe);
         if (!canSwipe || FootballController.Instance.playerType != FootballController.PlayerType.Striker)
         {
             return;

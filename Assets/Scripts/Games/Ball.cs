@@ -46,7 +46,8 @@ public class Ball : MonoBehaviour
         //rigidBody.AddTorque(Vector3.down * 10000, ForceMode.Impulse);
         //float upForce = Random.Range(1, 7);
         //float sideForce = Random.Range(-8, 8);
-        //rigidBody.AddForce(Vector3.forward * Random.Range(25, 40) + new Vector3(sideForce, upForce, 0), ForceMode.Impulse);    
+        //rigidBody.AddForce(Vector3.forward * Random.Range(25, 40) + new Vector3(sideForce, upForce, 0), ForceMode.Impulse);
+        FootballController.Instance.goal.gameObject.SetActive(true);
     }
 
     public void AddForce(Vector3 force)
@@ -63,6 +64,11 @@ public class Ball : MonoBehaviour
         FootballController.Instance.scoreController.time.Pause(true);
         Vector3 upForce = Vector3.up * 5f;
         rigidBody.AddForce(Vector3.forward * 25f + upForce, ForceMode.Impulse);
+<<<<<<< Updated upstream
+=======
+        rigidBody.AddTorque(Vector3.forward * 5f);
+        FootballController.Instance.goal.gameObject.SetActive(true);
+>>>>>>> Stashed changes
     }
 
     private void Update()

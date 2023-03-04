@@ -16,7 +16,7 @@ public class EventManager : MonoBehaviour
     public static Action onNetworkConnected;
 
     #region NETWORKING
-    public static Action<ulong, List<Vector3>> onDrawingLine;
+    public static Action<ulong, int, List<Vector3>> onDrawingLine;
     public static Action<ulong> onPhoneSideShaked;
     public static Action<ulong, float> onPhoneTilted;
     public static Action<ulong, byte[], Vector2> onCapturedPhotoSent;

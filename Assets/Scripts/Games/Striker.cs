@@ -8,12 +8,11 @@ public class Striker : Player
     public Ball ball;
     public SwipeController swipeController;
 
-    public Animator animator;
     private Vector3 shootPosition;
 
     private void Start()
     {
-        animator = GetComponent<Animator>(); 
+        animator = GetComponent<Animator>();
         swipeController.onSwipeCompleted += PlayShootAnimation;
     }
 

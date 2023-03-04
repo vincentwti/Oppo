@@ -159,7 +159,7 @@ namespace WTI.NetCode
             }
         }
 
-        private void SendPhoneDrawLineEvent(ulong senderClientId, List<Vector3> points)
+        private void SendPhoneDrawLineEvent(ulong senderClientId, int index, List<Vector3> points)
         {
             var writer = new FastBufferWriter(256000000, Allocator.Temp);
             var customMessagingManager = NetworkManager.CustomMessagingManager;
@@ -167,7 +167,7 @@ namespace WTI.NetCode
             {
                 // Write our message type
                 writer.WriteValueSafe(DRAW_LINE_EVENT_CODE);
-
+                writer.WriteValueSafe(index);
                 writer.WriteValueSafe(points.ToArray());
                 if (IsServer)
                 {
@@ -809,6 +809,7 @@ namespace WTI.NetCode
         protected void OnReceivedDrawLineEventMessage(ulong clientId, FastBufferReader reader)
         {
             Debug.Log("received message");
+            reader.ReadValueSafe(out int index);
             reader.ReadValueSafe(out Vector3[] points);
 
             //PositionListData positionData = JsonUtility.FromJson<PositionListData>(pointsJson);
@@ -817,7 +818,7 @@ namespace WTI.NetCode
             {
                 //SendPhoneDrawLineEvent(points.ToList());
             }
-            OnLineDrawn(points.ToList());
+            OnLineDrawn(index, points.ToList());
         }
 
         protected void OnReceivedPhoneTiltEventMessage(ulong clientId, FastBufferReader reader)
@@ -997,7 +998,8 @@ namespace WTI.NetCode
         private void OnPhoneSideShaked()
         {
             Debug.Log("OnPhoneShaked");
-            GameManager.Instance.PlayParticle();
+            //GameManager.Instance.PlayParticle();
+            EventManager.onClearLine?.Invoke();
         }
 
         private void OnPhoneForwardSwing(byte[] photo)
@@ -1025,10 +1027,10 @@ namespace WTI.NetCode
         }
 
 
-        private void OnLineDrawn(List<Vector3> points)
+        private void OnLineDrawn(int index, List<Vector3> points)
         {
             Debug.Log("OnLineDrawn");
-            GameManager.Instance.SetDrawingLine(points);
+            GameManager.Instance.SetDrawingLine(index, points);
         }
 
         private void OnPhoneAngleChanged(float angle)
